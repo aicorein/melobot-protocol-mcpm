@@ -1,0 +1,80 @@
+[project]
+name = "melobot-protocol-mcpm"
+version = "0.1.0"
+description = "A simple melobot protocol to manage Minecraft process generically"
+authors = [{ name = "aicorein", email = "aicorein@meloland.org" }]
+maintainers = [{ name = "aicorein", email = "aicorein@meloland.org" }]
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+keywords = ["melobot", "Minecraft", "manager"]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+requires-python = ">=3.11"
+dependencies = [
+    "melobot>=3.2.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/aicorein/melobot-protocol-mcpm"
+Repository = "https://github.com/aicorein/melobot-protocol-mcpm.git"
+Issues = "https://github.com/aicorein/melobot-protocol-mcpm/issues"
+
+[dependency-groups]
+measure = ["viztracer>=0.16.3", "pydeps>=1.12.20", "ipython"]
+test = ["pytest>=8.1.1", "pytest-asyncio>=0.24.0"]
+docs = [
+    "sphinx>=7.3.7",
+    "furo>=2024.1.29",
+    "myst-parser>=2.0.0",
+    "sphinx-copybutton>=0.5.2",
+]
+lint = ["black>=24.2.0", "isort>=5.13.2", "flake8>=7.0.0", "mypy>=1.11.1"]
+manage = ["toml>=0.10.2", "pre-commit>=4.0.1", "ipython>=8.32.0", "poethepoet>=0.33.1"]
+
+[tool.poe.tasks]
+isort = "isort --profile black src/melobot_protocol_mcpm tests docs"
+format = "black src/melobot_protocol_mcpm tests docs"
+check = "flake8 src/melobot_protocol_mcpm"
+analyse = "mypy src/melobot_protocol_mcpm"
+test = "pytest -c pytest.ini"
+deps = "pydeps src/melobot_protocol_mcpm -o pydeps.png -T png --only melobot_protocol_mcpm --rankdir BT --max-module-depth 2 --start-color 160"
+docs.script = "docs.make:main()"
+all_lint = ["isort", "format", "check", "analyse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.mypy]
+follow_imports = "normal"
+ignore_missing_imports = true
+show_column_numbers = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+warn_return_any = true
+warn_redundant_casts = true
+disallow_untyped_calls = true
+strict_equality = true
+
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+line_length = 100
