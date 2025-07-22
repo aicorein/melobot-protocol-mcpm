@@ -7,7 +7,7 @@
   <p align="center">
     <a href="https://github.com/aicorein/melobot-protocol-mcpm/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-BSD3-2ea44f" alt="license - BSD-3-Clause"></a>
     <a href="https://python.org" title="Go to Python homepage"><img src="https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-2ea44f?logo=python&logoColor=white" alt="Made with Python"></a>
-    <a href="https://github.com/aicorein/melobot-protocol-mcpm"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/aicorein/meloinf"></a>
+    <a href="https://github.com/aicorein/melobot-protocol-mcpm"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/aicorein/melobot-protocol-mcpm"></a>
   </p>
   <p>
     <a href="https://github.com/astral-sh/uv"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json" alt="uv - Managed"></a>
