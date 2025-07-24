@@ -2,7 +2,7 @@
   <img width=256 src="https://github.com/Meloland/melobot/blob/main/docs/source/_static/logo.png?raw=true" />
   <h1>melobot-protocol-mcpm</h1>
   <p>
-    <strong>适用于 melobot 服务端进程管理的 melobot 协议</strong>
+    <strong>适用于 Minecraft 服务端进程管理的 melobot 协议</strong>
   </p>
   <p align="center">
     <a href="https://github.com/aicorein/melobot-protocol-mcpm/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-BSD3-2ea44f" alt="license - BSD-3-Clause"></a>
