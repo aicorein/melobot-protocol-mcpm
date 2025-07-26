@@ -493,7 +493,7 @@ wheels = [
 
 [[package]]
 name = "melobot"
-version = "3.2.1"
+version = "3.2.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beartype" },
@@ -502,9 +502,9 @@ dependencies = [
     { name = "rich" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fb/d4/5fe6023a73917e3a5fa84930f45f17b9ec060e0b3a390deddfebe0472ebd/melobot-3.2.1.tar.gz", hash = "sha256:6837588189f11c1d6ded7693d889f067121d820a1b04a4bf08bac8ddc063a2c7", size = 2244715, upload-time = "2025-04-28T13:42:55.006Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1a/ef/06b21f1bb52dab379854363161cc2e26e5e4965f3952d1a51d8b9b159aea/melobot-3.2.2.tar.gz", hash = "sha256:528ec3237271229a29d9b9efbcaa1f14572c4cdfd8ee780fe1c6123e6f684dc6", size = 2061327, upload-time = "2025-07-26T10:00:09.151Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a2/da/9815b001e9555cccac8c7a33ea2bc2162af4f8b8bb1aa7200bceac23f2c3/melobot-3.2.1-py3-none-any.whl", hash = "sha256:157303ebb312c43af9d9c09d0e02aa8a1bc7ba8d0d77e0d2bee1cdc5170d2d04", size = 167623, upload-time = "2025-04-28T13:42:53.696Z" },
+    { url = "https://files.pythonhosted.org/packages/73/21/f7f69bce6f5f0bd10027a86c2d9a7dff23120a452d70dbc0aafe26f1e94b/melobot-3.2.2-py3-none-any.whl", hash = "sha256:0bfbc4aeed94fdbaf9a2a2d6e63716e64441ac1cfe69fbddf52572d64a424cdb", size = 167789, upload-time = "2025-07-26T10:00:07.269Z" },
 ]
 
 [[package]]
@@ -549,7 +549,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "aio-mc-rcon", specifier = ">=3.4.1" },
-    { name = "melobot", specifier = ">=3.2.1" },
+    { name = "melobot", specifier = ">=3.2.2" },
     { name = "typing-extensions", specifier = ">=4.14.1" },
 ]
 
