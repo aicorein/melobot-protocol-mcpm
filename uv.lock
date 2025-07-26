@@ -15,6 +15,15 @@ wheels = [
 ]
 
 [[package]]
+name = "aio-mc-rcon"
+version = "3.4.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cf/a9/afb064b4092e60608ee297de158a4259b2a5a54d8e4c34256b60f25b239e/aio_mc_rcon-3.4.1.tar.gz", hash = "sha256:c1623ed54a56b302abd76a7be9fbeab1275285bf58f8109a78169f82c01cdd13", size = 3761, upload-time = "2025-03-09T20:29:20.925Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/44/5e/ac4d4a68cb47a8dcc1514cbc2866167fa6729d114bbef7848014030ef06e/aio_mc_rcon-3.4.1-py3-none-any.whl", hash = "sha256:b8cb967505b3801d341e949a36afa6ea62ffe6f999cfa9fe72108378347ef440", size = 4831, upload-time = "2025-03-09T20:29:19.565Z" },
+]
+
+[[package]]
 name = "alabaster"
 version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -503,7 +512,9 @@ name = "melobot-protocol-mcpm"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "aio-mc-rcon" },
     { name = "melobot" },
+    { name = "typing-extensions" },
 ]
 
 [package.dev-dependencies]
@@ -536,7 +547,11 @@ test = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "melobot", specifier = ">=3.2.1" }]
+requires-dist = [
+    { name = "aio-mc-rcon", specifier = ">=3.4.1" },
+    { name = "melobot", specifier = ">=3.2.1" },
+    { name = "typing-extensions", specifier = ">=4.14.1" },
+]
 
 [package.metadata.requires-dev]
 docs = [
