@@ -28,7 +28,7 @@ classifiers = [
 requires-python = ">=3.11"
 dependencies = [
     "aio-mc-rcon>=3.4.1",
-    "melobot>=3.2.1",
+    "melobot>=3.2.2",
     "typing-extensions>=4.14.1",
 ]
 

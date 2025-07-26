@@ -2,16 +2,15 @@ from melobot.adapter import (
     AbstractEchoFactory,
     AbstractEventFactory,
     AbstractOutputFactory,
-    ActionHandleGroup
+    ActionHandleGroup,
 )
 from melobot.adapter import Adapter as RootAdapter
-from typing_extensions import Sequence, cast
 from melobot.handle import try_get_event
+from typing_extensions import Sequence, cast
 
 from ..const import PROTOCOL_IDENTIFIER
 from ..io.manager import ServerManager
 from ..io.model import CmdOutputData, EchoPacket, InPacket, OutPacket, OutputType
-from ..utils.cmd import CmdFactory
 from ..utils.text import JsonText
 from . import action as ac
 from . import echo as ec
@@ -24,14 +23,11 @@ class EventFactory(AbstractEventFactory[InPacket, ev.Event]):
 
 
 class OutputFactory(AbstractOutputFactory[OutPacket, ac.Action]):
-    cmd_factory = CmdFactory()
-
     async def create(self, action: ac.Action) -> OutPacket:
         match action.type:
             case OutputType.CMD:
                 action = cast(ac.CmdAction, action)
-                cmd_str = await ac.create_cmd_str(action, self.cmd_factory)
-                return OutPacket(data=CmdOutputData(content=cmd_str))
+                return OutPacket(data=CmdOutputData(content=action))
             case _:
                 raise ValueError(f"不支持的行为操作：{action}")
 
@@ -44,14 +40,10 @@ class EchoFactory(AbstractEchoFactory[EchoPacket, ec.Echo]):
 
 
 class Adapter(
-    RootAdapter[
-        EventFactory, OutputFactory, EchoFactory, ac.Action, ServerManager, ServerManager
-    ]
+    RootAdapter[EventFactory, OutputFactory, EchoFactory, ac.Action, ServerManager, ServerManager]
 ):
     def __init__(self) -> None:
-        super().__init__(
-            PROTOCOL_IDENTIFIER, EventFactory(), OutputFactory(), EchoFactory()
-        )
+        super().__init__(PROTOCOL_IDENTIFIER, EventFactory(), OutputFactory(), EchoFactory())
 
     async def __send_text__(self, text: str) -> ActionHandleGroup[ec.CmdEcho]:
         return await self.send_msg(None, text)

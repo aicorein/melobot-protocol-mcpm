@@ -6,11 +6,14 @@ from enum import Enum
 from melobot.io import EchoPacket as RootEchoPak
 from melobot.io import InPacket as RootInPak
 from melobot.io import OutPacket as RootOutPak
-from typing_extensions import Any, Literal, TypeVar
+from typing_extensions import TYPE_CHECKING, Any, Literal, TypeVar
 
 from ..const import PROTOCOL_IDENTIFIER
 from ..utils.cmd import CmdFactory
 from ..utils.pattern import RegexPatternGroup
+
+if TYPE_CHECKING:
+    from ..adapter.action import CmdAction
 
 
 @dataclass(kw_only=True)
@@ -73,7 +76,7 @@ OutputDataT = TypeVar("OutputDataT", bound=OutputData)
 @dataclass(kw_only=True, frozen=True)
 class CmdOutputData(OutputData):
     type: Literal[OutputType.CMD] = OutputType.CMD
-    content: str
+    content: "CmdAction"
 
 
 @dataclass(kw_only=True, frozen=True)
