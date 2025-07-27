@@ -4,9 +4,10 @@ from enum import Enum
 
 from melobot.typ import SyncOrAsyncCallable
 from melobot.utils.check import Checker
-from typing_extensions import Iterable, Optional, cast
+from typing_extensions import TYPE_CHECKING, Iterable, Optional, cast
 
-from ..adapter.event import Event, LogEvent, MessageEvent
+if TYPE_CHECKING:
+    from ..adapter.event import Event, LogEvent, MessageEvent
 
 
 class LevelRole(int, Enum):
@@ -19,7 +20,7 @@ class LevelRole(int, Enum):
     BLACK = 1
 
 
-def get_level_role(checker: MsgChecker, event: MessageEvent) -> LevelRole:
+def get_level_role(checker: MsgChecker, event: "MessageEvent") -> LevelRole:
     """获得消息事件对应的分级权限等级
 
     :param event: 消息事件
@@ -46,7 +47,7 @@ def get_level_role(checker: MsgChecker, event: MessageEvent) -> LevelRole:
     return res
 
 
-class MsgChecker(Checker[Event]):
+class MsgChecker(Checker["Event"]):
     """消息事件分级权限检查器
 
     主要分 主人、超级用户、白名单用户、普通用户、黑名单用户 五级
@@ -85,12 +86,12 @@ class MsgChecker(Checker[Event]):
             self.black_users,
         )
 
-    def _check(self, event: MessageEvent) -> bool:
+    def _check(self, event: "MessageEvent") -> bool:
         e_level = get_level_role(self, event)
         status = LevelRole.BLACK < e_level and e_level >= self.check_role
         return status
 
-    async def check(self, event: Event) -> bool:
+    async def check(self, event: "Event") -> bool:
         status = is_msg = False
         try:
             ret, is_msg = event.flag_get(
@@ -100,11 +101,11 @@ class MsgChecker(Checker[Event]):
                 return cast(bool, ret)
 
             # 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果
-            if not (event.is_log() and cast(LogEvent, event).is_message()):
+            if not (event.is_log() and cast("LogEvent", event).is_message()):
                 status = is_msg = False
             else:
                 is_msg = True
-                status = self._check(cast(MessageEvent, event))
+                status = self._check(cast("MessageEvent", event))
 
             event.flag_set(self.__class__, self._hash_tag, (status, is_msg))
             return status

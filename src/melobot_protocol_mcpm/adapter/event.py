@@ -8,6 +8,7 @@ from melobot.adapter import content
 from typing_extensions import Generic, Literal, cast
 
 from ..const import PROTOCOL_IDENTIFIER
+from ..io.manager import ServerManager
 from ..io.model import InputDataT, InputType, LogInputData
 from ..utils.common import truncate
 from ..utils.pattern import RegexPatternGroup as PatternGroup
@@ -260,6 +261,14 @@ class RconStartedEvent(LogEvent):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(server={self.server_id!r})"
+
+    @property
+    def rcon_host(self) -> str:
+        return cast(str, cast(ServerManager, self.get_origin_info().in_src).rcon_host)
+
+    @property
+    def rcon_port(self) -> int:
+        return cast(ServerManager, self.get_origin_info().in_src).rcon_port
 
     @classmethod
     def _is_rcon_started(

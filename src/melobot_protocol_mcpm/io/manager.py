@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import asyncio.subprocess
+import subprocess
+import sys
 from pathlib import Path
 from weakref import WeakValueDictionary
 
@@ -19,7 +21,9 @@ from .model import CmdEchoData, CmdOutputData, EchoPacket, InPacket, LogInputDat
 
 
 class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
-    __instances__: ClassVar[WeakValueDictionary[str, ServerManager]] = WeakValueDictionary()
+    __instances__: ClassVar[WeakValueDictionary[str, ServerManager]] = (
+        WeakValueDictionary()
+    )
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} name={self.name}>"
@@ -33,6 +37,7 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
         postfix_args: str | Sequence[str] = "",
         run_cmd: str | None = None,
         work_path: str | Path | None = None,
+        root_dir: str | Path | None = None,
         env: Mapping[str, str] | None = None,
         extra_exec_args: dict[str, Any] | None = None,
         pattern_group: RegexPatternGroup | None = None,
@@ -62,7 +67,9 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
         else:
             self.exec_cmd = run_cmd
 
-        self.pattern_group = pattern_group if pattern_group is not None else RegexPatternGroup()
+        self.pattern_group = (
+            pattern_group if pattern_group is not None else RegexPatternGroup()
+        )
         self.cmd_factory = cmd_factory if cmd_factory is not None else CmdFactory()
 
         self.rcon_host = rcon_host
@@ -79,6 +86,10 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
             self.work_path = Path(work_path).resolve(strict=True)
         else:
             self.work_path = Path.cwd().resolve()
+        if root_dir is not None:
+            self.root_dir = Path(root_dir).resolve(strict=True)
+        else:
+            self.root_dir = self.work_path
         self.env = env
         self.extra_exec_args = extra_exec_args if extra_exec_args is not None else {}
 
@@ -109,22 +120,37 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
 
             if self.rcon_host is None:
                 logger.warning("RCON 功能未启用，mcpm 协议的所有操作都将产生空回应")
-            self.rcon_client = RconClient(self.rcon_host, self.rcon_port, self.rcon_password)
+            self.rcon_client = RconClient(
+                self.rcon_host, self.rcon_port, self.rcon_password
+            )
             self._tasks.add(asyncio.create_task(self._proc_stdout_worker()))
             self._tasks.add(asyncio.create_task(self._proc_stderr_worker()))
             self._tasks.add(asyncio.create_task(self._proc_input_worker()))
 
             self.proc_ret = None
             try:
-                self.proc = await asyncio.create_subprocess_exec(
-                    *self.exec_cmd.split(),
-                    cwd=str(self.work_path),
-                    env=self.env,
-                    stdin=asyncio.subprocess.PIPE,
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE,
-                    **self.extra_exec_args,
-                )
+                if sys.platform != "win32":
+                    self.proc = await asyncio.create_subprocess_exec(
+                        *self.exec_cmd.split(),
+                        cwd=str(self.work_path),
+                        env=self.env,
+                        stdin=asyncio.subprocess.PIPE,
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE,
+                        start_new_session=True,
+                        **self.extra_exec_args,
+                    )
+                else:
+                    self.proc = await asyncio.create_subprocess_exec(
+                        *self.exec_cmd.split(),
+                        cwd=str(self.work_path),
+                        env=self.env,
+                        stdin=asyncio.subprocess.PIPE,
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE,
+                        creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP,
+                        **self.extra_exec_args,
+                    )
                 if not all((self.proc.stdin, self.proc.stdout, self.proc.stderr)):
                     raise RuntimeError(f"创建服务端 {self.name} 进程失败（{self.proc}）")
             except Exception as e:
@@ -154,7 +180,9 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
             self.proc_ret = await self.proc.wait()
             await asyncio.wait(self._tasks)
             del self.proc
-            logger.info(f"Minecraft 服务端 {self.name} 进程已退出，返回码：{self.proc_ret}")
+            logger.info(
+                f"Minecraft 服务端 {self.name} 进程已退出，返回码：{self.proc_ret}"
+            )
 
             self._in_buf = asyncio.Queue()
             self._out_buf = asyncio.Queue()
@@ -245,8 +273,17 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
 
             while True:
                 cmd, fut = await self._out_buf.get()
+                if self.proc.returncode is not None:
+                    err = f"服务端 {self.name} 进程非正常结束，返回码：{self.proc.returncode}"
+                    logger.warning(err)
+                    logger.warning(f"命令: {cmd} 已经无法完成，放弃执行")
+                    fut.set_exception(RuntimeError(err))
+                    break
+
                 if self.rcon_host is not None:
-                    ret_tup = await self.rcon_client.send_cmd(cmd, timeout=self.rcon_cmd_timeout)
+                    ret_tup = await self.rcon_client.send_cmd(
+                        cmd, timeout=self.rcon_cmd_timeout
+                    )
                     res = ret_tup[0]
                     fut.set_result(res)
                 else:
