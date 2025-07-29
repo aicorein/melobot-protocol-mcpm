@@ -17,7 +17,14 @@ from ..const import PROTOCOL_IDENTIFIER
 from ..utils.cmd import CmdFactory
 from ..utils.common import truncate
 from ..utils.pattern import RegexPatternGroup
-from .model import CmdEchoData, CmdOutputData, EchoPacket, InPacket, LogInputData, OutPacket
+from .model import (
+    CmdEchoData,
+    CmdOutputData,
+    EchoPacket,
+    InPacket,
+    LogInputData,
+    OutPacket,
+)
 
 
 class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
@@ -148,7 +155,8 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
                         stdin=asyncio.subprocess.PIPE,
                         stdout=asyncio.subprocess.PIPE,
                         stderr=asyncio.subprocess.PIPE,
-                        creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP,
+                        creationflags=subprocess.DETACHED_PROCESS
+                        | subprocess.CREATE_NEW_PROCESS_GROUP,
                         **self.extra_exec_args,
                     )
                 if not all((self.proc.stdin, self.proc.stdout, self.proc.stderr)):
@@ -158,6 +166,7 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
                 raise
             else:
                 logger.info(f"Minecraft 服务端 {self.name} 已启动")
+                self._tasks.add(asyncio.create_task(self._proc_monitor()))
 
             self._opened.set()
             logger.info(f"Minecraft 服务端 {self.name} 的管理器已开始运行")
@@ -232,6 +241,10 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
             return EchoPacket(data=CmdEchoData(content=ret, cmd=cmd))
         else:
             return EchoPacket(data=CmdEchoData(content="", cmd=cmd), noecho=True)
+
+    async def _proc_monitor(self) -> None:
+        await self.proc.wait()
+        await self.close()
 
     async def _proc_stdout_worker(self) -> None:
         await self._opened.wait()
