@@ -62,6 +62,7 @@ class LogInputData(InputData):
     content: str
     pattern_group: RegexPatternGroup
     cmd_factory: CmdFactory
+    from_: Literal["stdout", "stderr"]
 
 
 @dataclass(kw_only=True, frozen=True)

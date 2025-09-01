@@ -7,7 +7,7 @@ from melobot.utils.check import Checker
 from typing_extensions import TYPE_CHECKING, Iterable, Optional, cast
 
 if TYPE_CHECKING:
-    from ..adapter.event import Event, LogEvent, MessageEvent
+    from ..adapter.event import Event, LogEvent, MessageEvent, StdoutEvent
 
 
 class LevelRole(int, Enum):
@@ -101,7 +101,11 @@ class MsgChecker(Checker["Event"]):
                 return cast(bool, ret)
 
             # 不要使用 isinstace，避免通过反射模式注入的 event 依赖产生误判结果
-            if not (event.is_log() and cast("LogEvent", event).is_message()):
+            if not (
+                event.is_log()
+                and cast("LogEvent", event).is_stdout()
+                and cast("StdoutEvent", event).is_message()
+            ):
                 status = is_msg = False
             else:
                 is_msg = True

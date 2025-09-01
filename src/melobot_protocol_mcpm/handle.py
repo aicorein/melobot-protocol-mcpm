@@ -13,6 +13,8 @@ from .adapter.event import (
     PlayerEvent,
     RconStartedEvent,
     ServerDoneEvent,
+    StderrEvent,
+    StdoutEvent,
 )
 
 
@@ -46,6 +48,50 @@ def on_log(
 ) -> FlowDecorator:
     return FlowDecorator(
         checker=checker_join(lambda e: isinstance(e, LogEvent), checker),  # type: ignore[arg-type]
+        matcher=matcher,
+        parser=parser,
+        priority=priority,
+        block=block,
+        temp=temp,
+        decos=decos,
+        rule=rule,  # type: ignore[arg-type]
+    )
+
+
+def on_stdout(
+    checker: Checker | None | SyncOrAsyncCallable[[StdoutEvent], bool] = None,
+    matcher: Matcher | None = None,
+    parser: Parser | None = None,
+    priority: int = 0,
+    block: bool = False,
+    temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    rule: Rule[Event] | None = None,
+) -> FlowDecorator:
+    return FlowDecorator(
+        checker=checker_join(lambda e: isinstance(e, StdoutEvent), checker),  # type: ignore[arg-type]
+        matcher=matcher,
+        parser=parser,
+        priority=priority,
+        block=block,
+        temp=temp,
+        decos=decos,
+        rule=rule,  # type: ignore[arg-type]
+    )
+
+
+def on_stderr(
+    checker: Checker | None | SyncOrAsyncCallable[[StderrEvent], bool] = None,
+    matcher: Matcher | None = None,
+    parser: Parser | None = None,
+    priority: int = 0,
+    block: bool = False,
+    temp: bool = False,
+    decos: Sequence[Callable[[Callable], Callable]] | None = None,
+    rule: Rule[Event] | None = None,
+) -> FlowDecorator:
+    return FlowDecorator(
+        checker=checker_join(lambda e: isinstance(e, StderrEvent), checker),  # type: ignore[arg-type]
         matcher=matcher,
         parser=parser,
         priority=priority,

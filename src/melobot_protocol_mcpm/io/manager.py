@@ -11,7 +11,7 @@ from aiomcrcon import Client as RconClient
 from melobot import get_bot
 from melobot.io import AbstractIOSource
 from melobot.log import LogLevel, logger
-from typing_extensions import Any, ClassVar, Mapping, Sequence, cast
+from typing_extensions import Any, ClassVar, Literal, Mapping, Sequence, cast
 
 from ..const import PROTOCOL_IDENTIFIER
 from ..utils.cmd import CmdFactory
@@ -95,7 +95,7 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
         self._lock = asyncio.Lock()
         self._opened = asyncio.Event()
         self._tasks: set[asyncio.Task[None]] = set()
-        self._in_buf: asyncio.Queue[str] = asyncio.Queue()
+        self._in_buf: asyncio.Queue[tuple[str, Literal["stdout", "stderr"]]] = asyncio.Queue()
         self._out_buf: asyncio.Queue[tuple[str, asyncio.Future[str]]] = asyncio.Queue()
         self._server_done = asyncio.Event()
 
@@ -185,7 +185,7 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
 
     async def input(self) -> InPacket:
         await self._opened.wait()
-        in_str = await self._in_buf.get()
+        in_str, from_ = await self._in_buf.get()
         if self.to_console:
             logger.generic_lazy(
                 "%s",
@@ -197,6 +197,7 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
                 content=in_str,
                 pattern_group=self.pattern_group,
                 cmd_factory=self.cmd_factory,
+                from_=from_,
             ),
             server_id=self.name,
         )
@@ -238,7 +239,7 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
             while True:
                 line_b = await reader.readline()
                 line = line_b.decode(self.decoding).strip("\n")
-                self._in_buf.put_nowait(line)
+                self._in_buf.put_nowait((line, "stdout"))
         finally:
             logger.info("服务端 stdout 控制例程已停止")
 
@@ -249,7 +250,7 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
             while True:
                 line_b = await reader.readline()
                 line = line_b.decode(self.decoding).strip("\n")
-                self._in_buf.put_nowait(line)
+                self._in_buf.put_nowait((line, "stderr"))
         finally:
             logger.info("服务端 stderr 控制例程已停止")
 

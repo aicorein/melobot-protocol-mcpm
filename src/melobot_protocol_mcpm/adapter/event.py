@@ -76,6 +76,26 @@ class LogEvent(RootTextEvent, Event[LogInputData]):
 
     @classmethod
     def resolve(cls, server_id: str, data: LogInputData) -> LogEvent:
+        if data.from_ == "stdout":
+            return StdoutEvent.resolve(server_id, data)
+        elif data.from_ == "stderr":
+            return StderrEvent(server_id, data)
+        else:
+            return cls(server_id, data)
+
+    def is_stdout(self) -> bool:
+        return isinstance(self, StdoutEvent)
+
+    def is_stderr(self) -> bool:
+        return isinstance(self, StderrEvent)
+
+
+class StderrEvent(LogEvent): ...
+
+
+class StdoutEvent(LogEvent):
+    @classmethod
+    def resolve(cls, server_id: str, data: LogInputData) -> LogEvent:
         line_matched = search(data.pattern_group.line, data.content)
         if line_matched is None:
             return cls(server_id, data)
@@ -96,9 +116,7 @@ class LogEvent(RootTextEvent, Event[LogInputData]):
                 data,
             )
 
-        is_server_done, pattern = ServerDoneEvent._is_server_done(
-            data.pattern_group, log_content
-        )
+        is_server_done, pattern = ServerDoneEvent._is_server_done(data.pattern_group, log_content)
         if is_server_done:
             return ServerDoneEvent(server_id, cast(re.Pattern, pattern), data)
 
@@ -123,21 +141,17 @@ class LogEvent(RootTextEvent, Event[LogInputData]):
         return isinstance(self, RconStartedEvent)
 
 
-class MessageEvent(LogEvent):
+class MessageEvent(StdoutEvent):
     def __init__(self, server_id: str, pattern: re.Pattern, data: LogInputData) -> None:
         super().__init__(server_id, data)
         self.pattern = pattern
         matched = fullmatch(self.pattern, self.log_content)
         if matched is None:
-            raise ValueError(
-                f"无法解析的消息行: {self.log_content}，你可能需要检查正则表达式"
-            )
+            raise ValueError(f"无法解析的消息行: {self.log_content}，你可能需要检查正则表达式")
 
         self.player_name: str = matched.group("name")
         if fullmatch(data.pattern_group.player_name, self.player_name) is None:
-            raise ValueError(
-                f"无效的玩家名称: {self.player_name}，原始文本：{self.log_content!r}"
-            )
+            raise ValueError(f"无效的玩家名称: {self.player_name}，原始文本：{self.log_content!r}")
 
         self.message: str = matched.group("message")
         self.text = self.message
@@ -153,9 +167,7 @@ class MessageEvent(LogEvent):
         return self.player_name == player_name
 
     @classmethod
-    def _is_message(
-        cls, pattern_grp: PatternGroup, text: str
-    ) -> tuple[bool, re.Pattern | None]:
+    def _is_message(cls, pattern_grp: PatternGroup, text: str) -> tuple[bool, re.Pattern | None]:
         for pattern in pattern_grp.msg:
             if (matched := fullmatch(pattern, text)) is not None:
                 player_name = matched.group("name")
@@ -164,7 +176,7 @@ class MessageEvent(LogEvent):
         return False, None
 
 
-class PlayerEvent(LogEvent):
+class PlayerEvent(StdoutEvent):
     def __init__(
         self,
         server_id: str,
@@ -182,9 +194,7 @@ class PlayerEvent(LogEvent):
         self.player_name: str = matched.group("name")
 
         if fullmatch(data.pattern_group.player_name, self.player_name) is None:
-            raise ValueError(
-                f"无效的玩家名称: {self.player_name}，原始文本：{self.log_content!r}"
-            )
+            raise ValueError(f"无效的玩家名称: {self.player_name}，原始文本：{self.log_content!r}")
         self.operation_matched = matched
 
         self.contents = (
@@ -223,7 +233,7 @@ class PlayerEvent(LogEvent):
         return False, None, None
 
 
-class ServerDoneEvent(LogEvent):
+class ServerDoneEvent(StdoutEvent):
     def __init__(self, server_id: str, pattern: re.Pattern, data: LogInputData) -> None:
         super().__init__(server_id, data)
         self.pattern = pattern
@@ -246,7 +256,7 @@ class ServerDoneEvent(LogEvent):
         return False, None
 
 
-class RconStartedEvent(LogEvent):
+class RconStartedEvent(StdoutEvent):
     def __init__(self, server_id: str, pattern: re.Pattern, data: LogInputData) -> None:
         super().__init__(server_id, data)
         self.pattern = pattern
@@ -255,9 +265,7 @@ class RconStartedEvent(LogEvent):
             raise ValueError(f"无法解析的服务器 RCON 客户端连接事件: {self.log_content}")
 
         self.rcon_started_matched = matched
-        self.contents = (
-            content.TextContent(f"Server {self.server_id} has started RCON."),
-        )
+        self.contents = (content.TextContent(f"Server {self.server_id} has started RCON."),)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(server={self.server_id!r})"

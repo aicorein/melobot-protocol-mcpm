@@ -15,4 +15,6 @@ from .event import (
     PlayerEvent,
     RconStartedEvent,
     ServerDoneEvent,
+    StderrEvent,
+    StdoutEvent,
 )
