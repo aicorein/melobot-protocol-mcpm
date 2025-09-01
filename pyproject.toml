@@ -5,7 +5,7 @@ description = "A simple melobot protocol to manage Minecraft process generically
 authors = [{ name = "aicorein", email = "aicorein@meloland.org" }]
 maintainers = [{ name = "aicorein", email = "aicorein@meloland.org" }]
 readme = "README.md"
-license = "BSD-3-Clause"
+license = "LGPL-3.0-only"
 license-files = ["LICENSE"]
 keywords = ["melobot", "Minecraft", "manager"]
 classifiers = [
@@ -13,7 +13,7 @@ classifiers = [
     "Environment :: Console",
     "Intended Audience :: End Users/Desktop",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD License",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",

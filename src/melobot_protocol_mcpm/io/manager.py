@@ -17,20 +17,11 @@ from ..const import PROTOCOL_IDENTIFIER
 from ..utils.cmd import CmdFactory
 from ..utils.common import truncate
 from ..utils.pattern import RegexPatternGroup
-from .model import (
-    CmdEchoData,
-    CmdOutputData,
-    EchoPacket,
-    InPacket,
-    LogInputData,
-    OutPacket,
-)
+from .model import CmdEchoData, CmdOutputData, EchoPacket, InPacket, LogInputData, OutPacket
 
 
 class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
-    __instances__: ClassVar[WeakValueDictionary[str, ServerManager]] = (
-        WeakValueDictionary()
-    )
+    __instances__: ClassVar[WeakValueDictionary[str, ServerManager]] = WeakValueDictionary()
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} name={self.name}>"
@@ -74,9 +65,7 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
         else:
             self.exec_cmd = run_cmd
 
-        self.pattern_group = (
-            pattern_group if pattern_group is not None else RegexPatternGroup()
-        )
+        self.pattern_group = pattern_group if pattern_group is not None else RegexPatternGroup()
         self.cmd_factory = cmd_factory if cmd_factory is not None else CmdFactory()
 
         self.rcon_host = rcon_host
@@ -127,9 +116,7 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
 
             if self.rcon_host is None:
                 logger.warning("RCON 功能未启用，mcpm 协议的所有操作都将产生空回应")
-            self.rcon_client = RconClient(
-                self.rcon_host, self.rcon_port, self.rcon_password
-            )
+            self.rcon_client = RconClient(self.rcon_host, self.rcon_port, self.rcon_password)
             self._tasks.add(asyncio.create_task(self._proc_stdout_worker()))
             self._tasks.add(asyncio.create_task(self._proc_stderr_worker()))
             self._tasks.add(asyncio.create_task(self._proc_input_worker()))
@@ -189,9 +176,7 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
             self.proc_ret = await self.proc.wait()
             await asyncio.wait(self._tasks)
             del self.proc
-            logger.info(
-                f"Minecraft 服务端 {self.name} 进程已退出，返回码：{self.proc_ret}"
-            )
+            logger.info(f"Minecraft 服务端 {self.name} 进程已退出，返回码：{self.proc_ret}")
 
             self._in_buf = asyncio.Queue()
             self._out_buf = asyncio.Queue()
@@ -294,9 +279,7 @@ class ServerManager(AbstractIOSource[InPacket, OutPacket, EchoPacket]):
                     break
 
                 if self.rcon_host is not None:
-                    ret_tup = await self.rcon_client.send_cmd(
-                        cmd, timeout=self.rcon_cmd_timeout
-                    )
+                    ret_tup = await self.rcon_client.send_cmd(cmd, timeout=self.rcon_cmd_timeout)
                     res = ret_tup[0]
                     fut.set_result(res)
                 else:

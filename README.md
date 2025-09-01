@@ -5,7 +5,7 @@
     <strong>适用于 Minecraft 服务端进程管理的 melobot 协议</strong>
   </p>
   <p align="center">
-    <a href="https://github.com/aicorein/melobot-protocol-mcpm/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-BSD3-2ea44f" alt="license - BSD-3-Clause"></a>
+    <a href="https://github.com/aicorein/melobot-protocol-mcpm/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-LGPL3-2ea44f" alt="license - LGPL3"></a>
     <a href="https://python.org" title="Go to Python homepage"><img src="https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-2ea44f?logo=python&logoColor=white" alt="Made with Python"></a>
     <a href="https://github.com/aicorein/melobot-protocol-mcpm"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/aicorein/melobot-protocol-mcpm"></a>
   </p>
@@ -21,3 +21,5 @@
 基于 [melobot](https://github.com/aicorein/melobot) 的通用 Minecraft 服务端进程管理协议。
 
 可实现类似于 MCDR 的功能，但提供更多 melobot 支持下的新功能与新特性，目前仍在开发中。
+
+## 
